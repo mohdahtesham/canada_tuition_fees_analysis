@@ -1,0 +1,122 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+1) This project represents my own work and I have adhered to St. Clair College’s Academic Integrity policies in completing this project.
+
+2) R version 4.1.1 (2021-08-10)
+
+3) RStudio Version 1.4.1717
+
+4) ggplot2: v3.3.5
+   gganimate: v1.0.7
+   dplyr: 1.0.7
+   png: 0.1-7
+   gifski: 1.4.3-1
+   
+5)Documentation of the data sets: 
+  a)Canadian and international tuition fees by level of study, Source:statcan
+
+b) Link to the dataset:           https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3710004501
+
+c) Summary:  This dataset consists of international tuition fees in Canada by level of study from 2010-2021.The variables used in this dataset are date(year), province (provinces of Canada), field of study (Law, Engineering , Agriculture , Medicine ..etc),value(fees amount in Canadian dollars).By using this dataset we can visualize how international tuition fees has changed in past few years in the various provinces of Canada.
+
+6) Documentation of changes made to the dataset:
+a) Removed the columns DGUID,UOM_ID,SCALAR_FACTOR,SCALAR_ID,VECTOR,STATUS,SYMBOL	TERMINATED,DECIMALS.
+b) Formatted the date from 2010/2011 to 2010
+
+7) References to any external sources used and how they were used 
+Followed this blog to know more about gganimate
+https://anderfernandez.com/en/blog/how-to-create-animations-in-r-with-gganimate/
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(gganimate)
+
+fees_dataset <- read.csv("F:/DAB resources/DAB501/37100003.csv")
+
+# In this plot we are performing count on fees which is common,by this visualization we can see that cad 6000 is the most common fee in various fields of study
+
+ggplot(fees_dataset, aes(x=Fees)) +
+    geom_histogram() +
+  labs(title = "Fees",
+       subtitle = "(single continuous variable )",
+        x = "Fees",y="Count")
+
+#In this plot we are finding out the count of fields of study,we can see from the visualization that from 2017 fields of study have increased.
+
+ggplot(fees_dataset, aes(x=ï..DATE)) +
+    geom_bar() +
+  labs(title = "Fields of study count",
+       subtitle = "(single continuous variable )", x = "Years","Count")
+
+#In this plot we are describing how the fees varies in different provinces
+ggplot(fees_dataset,aes(x = Fees, fill = factor(GEO))) +geom_histogram() +
+  labs(title = "Fees in different provinces",
+       subtitle = "(single categorical variable )",x = "Fees",y="Count",fill="Province")
+
+#In this plot we are describing how the fees varies for different field of study
+ggplot(fees_dataset,aes(x = Fees, fill = factor(Field.of.study))) +geom_histogram() +
+  labs(title = "Fees by field of study",
+       subtitle = "(single categorical variable )",x = "Fees",y="Count",fill="Field of study")
+
+
+#In this plot we are describing how the fees varies for different field of study
+ggplot(fees_dataset, aes(x=Fees,y=Field.of.study,color= ï..DATE)) +
+    geom_point() +
+  labs(title = "Fees by year and field of study",
+       subtitle = "(continuous and categorical variable)",
+       y = "Field of study", x = "Fees",color = "Year")
+
+
+#In this plot we are describing the relationship between year and fees
+ggplot(fees_dataset, aes(x=ï..DATE, y=Fees,color= GEO)) +
+    geom_point()+
+  labs(title = "Fees vs Year by province",
+       subtitle = "(Relationship between two variables )",
+       y = "Fees", x = "Year",color = "Province")
+
+#In this plot we are describing the relationship between fees and field of study
+ggplot(fees_dataset, aes(x=ï..DATE, y=Fees,color =Field.of.study)) +
+    geom_line()+
+  labs(title = "Fees vs Year by field of study",
+       subtitle = "(Relationship between two variables )",
+       y = "Fees", x = "Year",color = "Field of study")
+
+#In this plot we are using facet wrap for different years and showing the information how fees has changed across years for different field of studies
+ggplot(fees_dataset,aes(x=Fees,y=Field.of.study,color=GEO)) +
+  facet_wrap(~ ï..DATE) + coord_flip()+
+ geom_point()+
+  scale_x_discrete(guide = guide_axis(check.overlap = TRUE))+ scale_size(range = c(2, 12)) + scale_x_log10() +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())+
+  labs(title = "Fees,Field of study,Year,Province",
+       subtitle = "(Graph using faceting and 4 variables)",x = "Fees", y = "Field of study",color="Province")
+
+#In this graph we are using gganimate to show how the fees has been changed from past ten years with a moving graph.
+animatedGraph <- ggplot(fees_dataset, aes(x = Fees, y = Field.of.study,colour = GEO)) + geom_point(alpha =0.7)+ scale_size(range = c(2, 12)) +
+  scale_x_log10()+
+  labs(title = "Fee changes over years",
+       subtitle = "(Animated Graph)",x = "Fees", y = "Field of study",color="Province")
+
+animatedGraph +
+  transition_time(ï..DATE) +
+  labs(title = "Year: {frame_time}")
+
+```
+
+8) In what ways do you think data visualization is important to understanding a data set? 
+Answer: Understanding the dataset is the most important part in data visualization because after knowing the details of variables used in the dataset we can plot the graph, sometimes variable names are not clear and cause confusion.
+
+9) In what ways do you think data visualization is important to communicating important aspects of a data set?
+Answer: I think data visualization makes it easier to understand what the data describes in many different formats by using various charts and interesting animations data visualization can give great insights and helps the business grow.The data which looks confusing in excel or csv file can be made easily understandable by using data visualizations.
+
+10) What role does your integrity as an analyst play when creating a data visualization for communicating results to others?
+Answer: My role as an analyst when creating a data visualization will be to maintain the integrity of data and any changes made should be informed to the audience because the audience will consider the visualizations as the real time data and small mistake or changes to data may misrepresent the perspective about the output.
+
+11) How many variables do you think you can successfully represent in a visualization? What happens when you exceed this number?
+Answer: I think a maximum of 10-12 variables can be represented and if exceed the number we have to flip the coordinates to make it visible,but if the data labels are many it may overlap and wont give the clear information.
